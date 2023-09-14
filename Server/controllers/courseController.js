@@ -144,4 +144,57 @@ const removeCourse = async (req,res,next) =>{
 
 } 
 
-export {getAllCourses,getLecturesByCourseId,createCourse,updateCourse,removeCourse}
+const addLectureByCourseId = async (req,res,next) =>{
+    try {
+        const {title,description} = req.body
+        const {id} = req.params
+
+        if(!title || !description){
+            return next(new AppError(500,`All fields are required`))
+        }
+
+        const courseFromDB = await Course.findById(id)
+
+        if(!courseFromDB){
+            return next(new AppError(500,`Course with given id not found !`))
+        }
+
+        const lectureData = {
+            title,description,lecture:{}
+        }
+
+        if(req.file){
+            try {
+                const result = await cloudinary.v2.uploader.upload(req.file.path,{
+                    folder: 'lms',
+                })
+    
+                if(result){
+                    lectureData.lecture.secure_url = result.secure_url
+                    lectureData.lecture.public_id = result.public_id
+                }
+    
+                fs.rm(`uploads/${req.file.filename}`)
+    
+            } catch (error) {
+                return next(new AppError(500,`Unable to upload image`))
+            }
+        }
+
+        courseFromDB.lectures.push(lectureData)
+        courseFromDB.numberOfLectures = courseFromDB.lectures.length
+
+        await courseFromDB.save()
+        
+        res.status(200).json({
+            success : true ,
+            message: `Lecture added to the course successfully`,
+            courseFromDB
+        })
+
+    } catch (error) {
+        return next(new AppError(500,error.message))
+    }
+}
+
+export {getAllCourses,getLecturesByCourseId,createCourse,updateCourse,removeCourse,addLectureByCourseId}
