@@ -2,7 +2,7 @@ import app from './app.js'
 import { config } from 'dotenv';
 config()
 import cloudinary from 'cloudinary'
-
+import Razorpay from 'razorpay'
 
 const PORT = process.env.PORT || 5010
 
@@ -13,6 +13,8 @@ cloudinary.v2.config({
   api_key: process.env.CLOUDINARY_API_KEY, 
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
+
+
 
 app.listen(PORT, ()=>{
 

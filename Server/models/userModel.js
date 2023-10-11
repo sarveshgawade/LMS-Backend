@@ -48,6 +48,10 @@ const userSchema = new mongoose.Schema({
     },
     forgotPasswordExpiry :{
         type: 'Date'
+    },
+    subscription:{
+        id: 'String',
+        status: 'String'
     }
 
     /**
